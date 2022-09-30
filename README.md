@@ -39,3 +39,7 @@ cmake version 3.24.2
 - https://github.com/piotrku91?tab=repositories
 - https://www.youtube.com/watch?v=gGxi500Q5uE
 - https://cstack.github.io/db_tutorial/parts/part2.html
+- https://joseph-m-hansen.medium.com/c-on-jupyter-notebooks-97f2be68923a
+
+### Sqlite
+- https://play.google.com/store/books/details?id=9Z6IQQnX1JEC
