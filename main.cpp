@@ -1,6 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
-#include "inputbuffer.h"
+#include "header/inputbuffer.h"
 
 using namespace std;
 
