@@ -1,3 +1,9 @@
+#VSCode
 .vscode/*
-main.dSYM/Contents
+
+#Binary
 main
+
+#CMAKE
+build/*
+main.dSYM/Contents
