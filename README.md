@@ -34,7 +34,7 @@ cmake version 3.24.2
 | 13 | Updating Parent Node After a Split |
 
 
-### 
+### Database
 - https://scrapbox.io/ohbarye/Let%27s_Build_a_Simple_Database
 - https://github.com/piotrku91?tab=repositories
 - https://www.youtube.com/watch?v=gGxi500Q5uE
@@ -43,3 +43,7 @@ cmake version 3.24.2
 
 ### Sqlite
 - https://play.google.com/store/books/details?id=9Z6IQQnX1JEC
+
+
+### C++
+- https://google.github.io/styleguide/cppguide.html
