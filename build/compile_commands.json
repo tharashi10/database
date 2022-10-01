@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/Users/tharashi/2022/database/build",
-  "command": "/usr/bin/clang++   -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -mmacosx-version-min=12.2 -o CMakeFiles/coredb.dir/main.cpp.o -c /Users/tharashi/2022/database/main.cpp",
-  "file": "/Users/tharashi/2022/database/main.cpp"
-}
-]
