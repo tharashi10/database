@@ -17,21 +17,21 @@ cmake version 3.24.2
 ```
 
 ### 
-| ## | Detail |
-|----|---|
-| 01 | Introduction and Setting up the REPL |
-| 02 | World’s Simplest SQL Compiler and Virtual Machine |
-| 03 | An In-Memory, Append-Only, Single-Table Database |
-| 04 | Our First Tests (and Bugs) |
-| 05 | Persistence to Disk |
-| 06 | The Cursor Abstraction |
-| 07 | Introduction to the B-Tree |
-| 08 | B-Tree Leaf Node Format |
-| 09 | Binary Search and Duplicate Keys |
-| 10 | Splitting a Leaf Node |
-| 11 | Recursively Searching the B-Tree |
-| 12 | Scanning a Multi-Level B-Tree |
-| 13 | Updating Parent Node After a Split |
+| ## | Detail | Summary |
+|----|---|---|
+| 01 | Introduction and Setting up the REPL | REPLの実装(Read execute-print Loop) |
+| 02 | World’s Simplest SQL Compiler and Virtual Machine ||
+| 03 | An In-Memory, Append-Only, Single-Table Database ||
+| 04 | Our First Tests (and Bugs) ||
+| 05 | Persistence to Disk ||
+| 06 | The Cursor Abstraction ||
+| 07 | Introduction to the B-Tree ||
+| 08 | B-Tree Leaf Node Format ||
+| 09 | Binary Search and Duplicate Keys ||
+| 10 | Splitting a Leaf Node ||
+| 11 | Recursively Searching the B-Tree ||
+| 12 | Scanning a Multi-Level B-Tree ||
+| 13 | Updating Parent Node After a Split ||
 
 
 ### Database
