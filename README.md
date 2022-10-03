@@ -20,7 +20,7 @@ cmake version 3.24.2
 | ## | Detail | Summary |
 |----|---|---|
 | 01 | Introduction and Setting up the REPL | REPLの実装(Read execute-print Loop) |
-| 02 | World’s Simplest SQL Compiler and Virtual Machine ||
+| 02 | World’s Simplest SQL Compiler and Virtual Machine |SQLコンパイラの実装|
 | 03 | An In-Memory, Append-Only, Single-Table Database ||
 | 04 | Our First Tests (and Bugs) ||
 | 05 | Persistence to Disk ||
