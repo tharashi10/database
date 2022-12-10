@@ -1,0 +1,10 @@
+#VSCode
+.vscode/*
+
+#Binary
+main
+
+#CMAKE
+build/*
+main.dSYM/Contents
+CMakeLists.txt
