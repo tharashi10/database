@@ -19,7 +19,7 @@ cmake version 3.24.2
 ### 
 | ## | Detail | Summary |
 |----|---|---|
-| 01 | Introduction and Setting up the REPL | REPLの実装(Read execute-print Loop)<br>対話型インタプリタを実装する |
+| 01 | Introduction and Setting up the REPL | REPLの実装(Read execute-print Loop)<br>対話型インタプリタを実装する<br>Tokenizer(字句解析)は入力文字をToken列に分割する |
 | 02 | World’s Simplest SQL Compiler and Virtual Machine |SQLコンパイラの実装<br>SQLコンパイラは文字列をパースする<br>そしてByteCode(中間コード)に変換し仮想マシンへ返す|
 | 03 | An In-Memory, Append-Only, Single-Table Database ||
 | 04 | Our First Tests (and Bugs) ||
