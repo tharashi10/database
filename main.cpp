@@ -16,7 +16,7 @@ InputBuffer* new_input_buffer() {
   return input_buffer;
 }
 
-void print_prompt() { cout << "db > "<< endl; }
+void print_prompt() { cout << "db > "; }
 
 /*ssize_tはvalidなサイズであるか、エラーを示す負の値となる関数の戻り値として使われる*/
 ssize_t getline(char **lineptr, size_t *n, FILE *stream);
@@ -53,11 +53,12 @@ MetaCommandResult do_metacommand(InputBuffer* input_buffer){
 // SQLコンパイラ(InsertとSelectのみ解釈可能)
 PrepareResult prepare_statement(InputBuffer* input_buffer,Statement* statement){
   if (strncmp(input_buffer->buffer, "insert", 6)==0) {
-
     statement->type = STATEMENT_INSERT;
+    return PREPARE_SUCCESS; // Ex. 'insert hoge foo'に対して、PREPARE_SUCCESSを返す 
   } 
   if (strcmp(input_buffer->buffer, "select")==0) {
     statement->type = STATEMENT_SELECT;
+    return PREPARE_SUCCESS; 
   } 
   return PREPARE_UNRECOGNIZED_STATEMENT;
 }
@@ -67,7 +68,7 @@ void execute_statement(Statement* statement){
   switch (statement->type)
   {
   case (STATEMENT_INSERT):
-    cout <<" ------- " << endl;
+    cout << " ------- " << endl;
     printf("This is where we would do an Insert.\n");
     break;
   case (STATEMENT_SELECT):
