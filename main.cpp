@@ -1,9 +1,9 @@
 #include <iostream>
 #include <stdlib.h>
-#include "header/inputbuffer.h"
-#include "header/metacommands.h"
-#include "header/preparestatement.h"
-#include "header/statement.h"
+#include "header/inputbuffer.hpp"
+#include "header/metacommands.hpp"
+#include "header/preparestatement.hpp"
+#include "header/statement.hpp"
 using namespace std;
 
 
