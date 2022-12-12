@@ -39,6 +39,7 @@ cmake version 3.24.2
 - https://www.youtube.com/watch?v=gGxi500Q5uE
 - https://cstack.github.io/db_tutorial/parts/part2.html
 - https://scrapbox.io/ohbarye/Let%27s_Build_a_Simple_Database
+- https://github.com/KCNyu/db_tutorial_cpp/blob/master/tutorial03/db.cpp
 - https://joseph-m-hansen.medium.com/c-on-jupyter-notebooks-97f2be68923a
 
 ### Sqlite
