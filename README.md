@@ -16,13 +16,27 @@ $ cmake --version
 cmake version 3.24.2
 ```
 
+### TestInfo
+```
+$ ruby -v                          
+ruby 2.6.8p205 (2021-07-07 revision 67951) [universal.arm64e-darwin21]
+
+$ sudo gem install rspec
+$ rspec -v                         
+RSpec 3.12
+  - rspec-core 3.12.0
+  - rspec-expectations 3.12.1
+  - rspec-mocks 3.12.1
+  - rspec-support 3.12.0
+```
+
 ### 
 | ## | Detail | Summary |
 |----|---|---|
-| 01 | Introduction and Setting up the REPL | REPLの実装(Read execute-print Loop)<br>対話型インタプリタを実装する<br>Tokenizer(字句解析)は入力文字をToken列に分割する |
-| 02 | World’s Simplest SQL Compiler and Virtual Machine |SQLコンパイラの実装<br>SQLコンパイラは文字列をパースする<br>そしてByteCode(中間コード)に変換し仮想マシンへ返す|
+| 01 | Introduction and Setting up the REPL | REPLの実装(Read execute-print Loop)<br>対話型インタプリタを実装する<br>Tokenizer(字句解析)が入力文字をToken列に分割 |
+| 02 | World’s Simplest SQL Compiler and Virtual Machine |SQLコンパイラの実装<br>SQLコンパイラは文字列をパースする<br>ByteCode(中間Code)に変換し仮想マシンへ返す|
 | 03 | An In-Memory, Append-Only, Single-Table Database | メモリ上の表を作成する<br>Insert/Selectを実装する<br>Pageを作成する |
-| 04 | Our First Tests (and Bugs) ||
+| 04 | Our First Tests (and Bugs) |rspecの導入<br>|
 | 05 | Persistence to Disk ||
 | 06 | The Cursor Abstraction ||
 | 07 | Introduction to the B-Tree ||
@@ -41,6 +55,7 @@ cmake version 3.24.2
 - https://scrapbox.io/ohbarye/Let%27s_Build_a_Simple_Database
 - https://github.com/KCNyu/db_tutorial_cpp/blob/master/tutorial03/db.cpp
 - https://joseph-m-hansen.medium.com/c-on-jupyter-notebooks-97f2be68923a
+- https://rspec.info/
 
 ### Sqlite
 - https://play.google.com/store/books/details?id=9Z6IQQnX1JEC

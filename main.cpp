@@ -211,7 +211,7 @@ MetaCommandResult DB::do_meta_command(string &command)
 {
     if (command == ".exit")
     {
-        cout << "Thanks for using simple db. Bye!" << endl;
+        cout << "Thanks for using simple database. Bye!" << endl;
         exit(EXIT_SUCCESS);
     }
     else
