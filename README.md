@@ -33,10 +33,10 @@ RSpec 3.12
 ### 
 | ## | Detail | Summary |
 |----|---|---|
-| 01 | Introduction and Setting up the REPL | REPLの実装(Read execute-print Loop)<br>対話型インタプリタを実装する<br>Tokenizer(字句解析)が入力文字をToken列に分割 |
-| 02 | World’s Simplest SQL Compiler and Virtual Machine |SQLコンパイラの実装<br>SQLコンパイラは文字列をパースする<br>ByteCode(中間Code)に変換し仮想マシンへ返す|
+| 01 | Introduction and Setting up the REPL | REPLの実装(Read execute-print Loop)<br>対話型インタプリタを実装する<br>Tokenizer(字句解析)が入力をToken列に分割 |
+| 02 | World’s Simplest SQL Compiler and Virtual Machine |SQLコンパイラの実装<br>SQLコンパイラは文字列をパースする<br>ByteCode(中間Cd)に変換し仮想マシンへ返す|
 | 03 | An In-Memory, Append-Only, Single-Table Database | メモリ上の表を作成する<br>Insert/Selectを実装する<br>Pageを作成する |
-| 04 | Our First Tests (and Bugs) |rspecの導入<br>|
+| 04 | Our First Tests (and Bugs) |rspecの導入<br>`sscanf`->`strtok()`に変更<br>TestCase3つ追加|
 | 05 | Persistence to Disk ||
 | 06 | The Cursor Abstraction ||
 | 07 | Introduction to the B-Tree ||
