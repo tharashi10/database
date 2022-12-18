@@ -62,3 +62,6 @@ RSpec 3.12
 
 ### C++
 - https://google.github.io/styleguide/cppguide.html
+
+### GitHub Pages
+- https://kbroman.org/simple_site/
