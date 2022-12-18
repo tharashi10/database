@@ -21,7 +21,7 @@ cmake version 3.24.2
 |----|---|---|
 | 01 | Introduction and Setting up the REPL | REPLの実装(Read execute-print Loop)<br>対話型インタプリタを実装する<br>Tokenizer(字句解析)は入力文字をToken列に分割する |
 | 02 | World’s Simplest SQL Compiler and Virtual Machine |SQLコンパイラの実装<br>SQLコンパイラは文字列をパースする<br>そしてByteCode(中間コード)に変換し仮想マシンへ返す|
-| 03 | An In-Memory, Append-Only, Single-Table Database ||
+| 03 | An In-Memory, Append-Only, Single-Table Database | メモリ上の表を作成する<br>Insert/Selectを実装する<br>Pageを作成する |
 | 04 | Our First Tests (and Bugs) ||
 | 05 | Persistence to Disk ||
 | 06 | The Cursor Abstraction ||
@@ -35,16 +35,15 @@ cmake version 3.24.2
 
 
 ### Database
+- https://cstack.github.io/db_tutorial/
 - https://github.com/piotrku91?tab=repositories
 - https://www.youtube.com/watch?v=gGxi500Q5uE
-- https://cstack.github.io/db_tutorial/parts/part2.html
 - https://scrapbox.io/ohbarye/Let%27s_Build_a_Simple_Database
 - https://github.com/KCNyu/db_tutorial_cpp/blob/master/tutorial03/db.cpp
 - https://joseph-m-hansen.medium.com/c-on-jupyter-notebooks-97f2be68923a
 
 ### Sqlite
 - https://play.google.com/store/books/details?id=9Z6IQQnX1JEC
-
 
 ### C++
 - https://google.github.io/styleguide/cppguide.html

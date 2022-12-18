@@ -14,30 +14,56 @@
 
 using namespace std;
 
+/**
+ * @enum MetaCommandResult
+ * Metaコマンドの結果の列挙体
+ * Metaコマンドは Non-SQLなコマンド(.から始まる)ものとして定義
+*/
 enum MetaCommandResult
 {
     META_COMMAND_SUCCESS,
     META_COMMAND_UNRECOGNIZED_COMMAND
 };
+
+/**
+ * @enum PrepareResult
+ * SQLのパース時に事前に呼び出される
+*/
 enum PrepareResult
 {
     PREPARE_SUCCESS,
     PREPARE_SYNTAX_ERROR,
     PREPARE_UNRECOGNIZED_STATEMENT
 };
+
+/**
+ * @enum
+ * SQL文の列挙体
+*/
 enum StatementType
 {
     STATEMENT_INSERT,
     STATEMENT_SELECT
 };
+
+/**
+ * @enum
+ * SQL実行結果の列挙体
+*/
 enum ExecuteResult
 {
     EXECUTE_SUCCESS,
     EXECUTE_TABLE_FULL
 };
 
+/**
+ * @def
+ * 列サイズのマクロ
+*/
 #define COLUMN_USERNAME_SIZE 32
 #define COLUMN_EMAIL_SIZE 255
+
+/** 行Class */
 class Row
 {
 public:
@@ -46,6 +72,10 @@ public:
     char email[COLUMN_EMAIL_SIZE];
 };
 
+/**
+ * @def
+ * 構造体の属性サイズを取得するマクロ
+*/
 #define size_of_attribute(Struct, Attribute) sizeof(((Struct *)0)->Attribute)
 
 const uint32_t ID_SIZE = size_of_attribute(Row, id);
@@ -70,17 +100,25 @@ void deserialize_row(void *source, Row &destination)
     memcpy(&(destination.email), (char *)source + EMAIL_OFFSET, EMAIL_SIZE);
 }
 
+/**
+ * @def
+ * 表のページサイズのマクロ
+*/
 #define TABLE_MAX_PAGES 100
+
 const uint32_t PAGE_SIZE = 4096;
 const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
 const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
+
+/** 表クラス */
 class Table
 {
 public:
     uint32_t num_rows;
     void *pages[TABLE_MAX_PAGES];
     Table()
-    {
+    {   
+        cout << "TABLE_MAX_PAGES: " << TABLE_MAX_PAGES << endl;
         num_rows = 0;
         for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++)
         {
@@ -95,19 +133,27 @@ public:
         }
     }
 };
+
+/**
+ * @fn
+ * slot=Pageにおける行番号
+ * slot=0ならば、そのPageの最初の行番号に一致する
+*/
 void *row_slot(Table &table, uint32_t row_num)
 {
     uint32_t page_num = row_num / ROWS_PER_PAGE;
     void *page = table.pages[page_num];
     if (page == NULL)
     {
-        // Allocate memory only when we try to access page
+        // Pageにアクセスする時だけ、メモリを割り当てる
         page = table.pages[page_num] = malloc(PAGE_SIZE);
     }
     uint32_t row_offset = row_num % ROWS_PER_PAGE;
     uint32_t byte_offset = row_offset * ROW_SIZE;
     return (char *)page + byte_offset;
 }
+
+/** ステートメント Class */
 class Statement
 {
 public:
@@ -156,11 +202,16 @@ bool DB::parse_meta_command(string &command)
     }
     return false;
 }
+
+/**
+ * @fn
+ * Meta Commandの実行
+*/
 MetaCommandResult DB::do_meta_command(string &command)
 {
     if (command == ".exit")
     {
-        cout << "Bye!" << endl;
+        cout << "Thanks for using simple db. Bye!" << endl;
         exit(EXIT_SUCCESS);
     }
     else
@@ -169,6 +220,10 @@ MetaCommandResult DB::do_meta_command(string &command)
     }
 }
 
+/**
+ * @fn
+ * Prepared Statement 事前にSQLテンプレートを持っておく
+*/
 PrepareResult DB::prepare_statement(string &input_line, Statement &statement)
 {
     if (!input_line.compare(0, 6, "insert"))
@@ -193,6 +248,11 @@ PrepareResult DB::prepare_statement(string &input_line, Statement &statement)
         return PREPARE_UNRECOGNIZED_STATEMENT;
     }
 }
+
+/**
+ * @fn
+ * 入力ストリームのSQLをパースする
+*/
 bool DB::parse_statement(string &input_line, Statement &statement)
 {
     switch (prepare_statement(input_line, statement))
@@ -200,7 +260,7 @@ bool DB::parse_statement(string &input_line, Statement &statement)
     case PREPARE_SUCCESS:
         return false;
     case PREPARE_SYNTAX_ERROR:
-        cout << "Syntax error. Could not parse statement." << endl;
+        cout << "Syntax Error. Could not parse statement." << endl;
         return true;
     case PREPARE_UNRECOGNIZED_STATEMENT:
         cout << "Unrecognized keyword at start of '" << input_line << "'." << endl;
@@ -208,11 +268,16 @@ bool DB::parse_statement(string &input_line, Statement &statement)
     }
     return false;
 }
+
+/**
+ * @fn
+ * Insert文実行
+*/
 ExecuteResult DB::execute_insert(Statement &statement, Table &table)
 {
     if (table.num_rows >= TABLE_MAX_ROWS)
     {
-        cout << "Error: Table full." << endl;
+        cout << "Error: Table is full." << endl;
         return EXECUTE_TABLE_FULL;
     }
 
@@ -222,6 +287,11 @@ ExecuteResult DB::execute_insert(Statement &statement, Table &table)
 
     return EXECUTE_SUCCESS;
 }
+
+/**
+ * @fn
+ * Select文実行
+*/
 ExecuteResult DB::execute_select(Statement &statement, Table &table)
 {
     for (uint32_t i = 0; i < table.num_rows; i++)
