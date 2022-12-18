@@ -1,6 +1,18 @@
+/**
+* @file main.cpp
+* @brief Simple Database Main
+* @author takahiro harashima
+* @date Dec 1st,2022
+*
+* @details made original applications in cpp
+* @note 
+*/
+
 #include <iostream>
 #include <cstring>
 #include <string>
+
+using namespace std;
 
 enum MetaCommandResult
 {
@@ -102,28 +114,34 @@ public:
     StatementType type;
     Row row_to_insert;
 };
+
+/** DB Class */
 class DB
 {
 public:
     void start();
     void print_prompt();
 
-    bool parse_meta_command(std::string &command);
-    MetaCommandResult do_meta_command(std::string &command);
+    bool parse_meta_command(string &command);
+    MetaCommandResult do_meta_command(string &command);
 
-    PrepareResult prepare_statement(std::string &input_line, Statement &statement);
-    bool parse_statement(std::string &input_line, Statement &statement);
+    PrepareResult prepare_statement(string &input_line, Statement &statement);
+    bool parse_statement(string &input_line, Statement &statement);
     void execute_statement(Statement &statement, Table &table);
     ExecuteResult execute_insert(Statement &statement, Table &table);
     ExecuteResult execute_select(Statement &statement, Table &table);
 };
 
+/**
+ * @fn
+ * REPL スタートポイント
+*/
 void DB::print_prompt()
 {
-    std::cout << "db > ";
+    cout << "SimpleDatabase > ";
 }
 
-bool DB::parse_meta_command(std::string &command)
+bool DB::parse_meta_command(string &command)
 {
     if (command[0] == '.')
     {
@@ -132,17 +150,17 @@ bool DB::parse_meta_command(std::string &command)
         case META_COMMAND_SUCCESS:
             return true;
         case META_COMMAND_UNRECOGNIZED_COMMAND:
-            std::cout << "Unrecognized command: " << command << std::endl;
+            cout << "Unrecognized command: " << command << endl;
             return true;
         }
     }
     return false;
 }
-MetaCommandResult DB::do_meta_command(std::string &command)
+MetaCommandResult DB::do_meta_command(string &command)
 {
     if (command == ".exit")
     {
-        std::cout << "Bye!" << std::endl;
+        cout << "Bye!" << endl;
         exit(EXIT_SUCCESS);
     }
     else
@@ -151,12 +169,12 @@ MetaCommandResult DB::do_meta_command(std::string &command)
     }
 }
 
-PrepareResult DB::prepare_statement(std::string &input_line, Statement &statement)
+PrepareResult DB::prepare_statement(string &input_line, Statement &statement)
 {
     if (!input_line.compare(0, 6, "insert"))
     {
         statement.type = STATEMENT_INSERT;
-        int args_assigned = std::sscanf(
+        int args_assigned = sscanf(
             input_line.c_str(), "insert %d %s %s", &(statement.row_to_insert.id),
             statement.row_to_insert.username, statement.row_to_insert.email);
         if (args_assigned < 3)
@@ -175,17 +193,17 @@ PrepareResult DB::prepare_statement(std::string &input_line, Statement &statemen
         return PREPARE_UNRECOGNIZED_STATEMENT;
     }
 }
-bool DB::parse_statement(std::string &input_line, Statement &statement)
+bool DB::parse_statement(string &input_line, Statement &statement)
 {
     switch (prepare_statement(input_line, statement))
     {
     case PREPARE_SUCCESS:
         return false;
     case PREPARE_SYNTAX_ERROR:
-        std::cout << "Syntax error. Could not parse statement." << std::endl;
+        cout << "Syntax error. Could not parse statement." << endl;
         return true;
     case PREPARE_UNRECOGNIZED_STATEMENT:
-        std::cout << "Unrecognized keyword at start of '" << input_line << "'." << std::endl;
+        cout << "Unrecognized keyword at start of '" << input_line << "'." << endl;
         return true;
     }
     return false;
@@ -194,7 +212,7 @@ ExecuteResult DB::execute_insert(Statement &statement, Table &table)
 {
     if (table.num_rows >= TABLE_MAX_ROWS)
     {
-        std::cout << "Error: Table full." << std::endl;
+        cout << "Error: Table full." << endl;
         return EXECUTE_TABLE_FULL;
     }
 
@@ -211,7 +229,7 @@ ExecuteResult DB::execute_select(Statement &statement, Table &table)
         Row row;
         void *page = row_slot(table, i);
         deserialize_row(page, row);
-        std::cout << "(" << row.id << ", " << row.username << ", " << row.email << ")" << std::endl;
+        cout << "(" << row.id << ", " << row.username << ", " << row.email << ")" << endl;
     }
 
     return EXECUTE_SUCCESS;
@@ -232,14 +250,19 @@ void DB::execute_statement(Statement &statement, Table &table)
     switch (result)
     {
     case EXECUTE_SUCCESS:
-        std::cout << "Executed." << std::endl;
+        cout << "Executed." << endl;
         break;
     case EXECUTE_TABLE_FULL:
-        std::cout << "Error: Table full." << std::endl;
+        cout << "Error: Table full." << endl;
         break;
     }
 }
 
+/**
+ * @fn
+ * REPL実装
+ * @return void
+*/
 void DB::start()
 {
     Table table;
@@ -248,8 +271,13 @@ void DB::start()
     {
         print_prompt();
 
-        std::string input_line;
-        std::getline(std::cin, input_line);
+        string input_line;
+        /**
+         * std::getline
+         * @fn
+         * 改行文字が現れるまでの文字を入力する
+        */
+        getline(cin, input_line);
 
         if (parse_meta_command(input_line))
         {
