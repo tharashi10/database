@@ -11,6 +11,8 @@
 #include <iostream>
 #include <cstring>
 #include <string>
+#include <fcntl.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -124,44 +126,191 @@ const uint32_t PAGE_SIZE = 4096;
 const uint32_t ROWS_PER_PAGE = PAGE_SIZE / ROW_SIZE;
 const uint32_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
 
+
+/** Pager Class */
+class Pager
+{
+public:
+    int file_descriptor;
+    uint32_t file_length;
+    void *pages[TABLE_MAX_PAGES];
+    Pager(const char *filename);
+    void *get_page(uint32_t page_num);
+    void pager_flush(uint32_t page_num, uint32_t size);
+};
+
+
+Pager::Pager(const char *filename)
+{
+    file_descriptor = open(filename,
+                            O_RDWR | // Read/Write mode
+                            O_CREAT, // Create file if it does not exist
+                            S_IWUSR |// User write permission
+                            S_IRUSR  // User read permission
+    );
+    if (file_descriptor < 0)
+    {
+        cerr << "Error: cannot open file " << filename << endl;
+        exit(EXIT_FAILURE);
+    }
+    file_length = lseek(file_descriptor, 0, SEEK_END);
+
+    for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++)
+    {
+        pages[i] = nullptr;
+    }
+}
+
+/**
+ * @fn
+ * No.# によってPageを取得するMethod
+*/
+void *Pager::get_page(uint32_t page_num){
+    if (page_num > TABLE_MAX_PAGES)
+    {
+        cout << "Tried to fetch page number out of bounds. " << page_num << " > "
+                  << TABLE_MAX_PAGES << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (pages[page_num] == nullptr)
+    {
+        // Cache miss. Allocate memory and load from file.
+        void *page = malloc(PAGE_SIZE);
+        uint32_t num_pages = file_length / PAGE_SIZE;
+
+        // We might save a partial page at the end of the file
+        if (file_length % PAGE_SIZE)
+        {
+            num_pages += 1;
+        }
+
+        if (page_num <= num_pages)
+        {
+            lseek(file_descriptor, page_num * PAGE_SIZE, SEEK_SET);
+            ssize_t bytes_read = read(file_descriptor, page, PAGE_SIZE);
+            if (bytes_read == -1)
+            {
+                cout << "Error reading file: " << errno << endl;
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        pages[page_num] = page;
+    }
+
+    return pages[page_num];
+}
+
+/**
+ * @fn
+ * 
+*/
+void Pager::pager_flush(uint32_t page_num, uint32_t size)
+{
+    if (pages[page_num] == nullptr)
+    {
+        cout << "Tried to flush null page" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    off_t offset = lseek(file_descriptor, page_num * PAGE_SIZE, SEEK_SET);
+
+    if (offset == -1)
+    {
+        cout << "Error seeking: " << errno << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    ssize_t bytes_written =
+        write(file_descriptor, pages[page_num], size);
+
+    if (bytes_written == -1)
+    {
+        cout << "Error writing: " << errno << endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
+
+
 /** 表クラス */
 class Table
 {
 public:
     uint32_t num_rows;
-    void *pages[TABLE_MAX_PAGES];
-    Table()
-    {   
-        cout << "TABLE_MAX_PAGES: " << TABLE_MAX_PAGES << endl;
-        num_rows = 0;
-        for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++)
-        {
-            pages[i] = NULL;
-        }
-    }
-    ~Table()
+    //void *pages[TABLE_MAX_PAGES];
+    Pager pager;
+    Table(const char *filename) : pager(filename)
     {
-        for (int i = 0; pages[i]; i++)
+        num_rows = pager.file_length / ROW_SIZE;
+    }
+    ~Table();
+    void *row_slot(uint32_t row_num);
+};
+
+
+
+/**
+ * @fn
+ * デコンストラクタ
+*/
+Table::~Table()
+{
+    uint32_t num_full_pages = num_rows / ROWS_PER_PAGE;
+
+    for (uint32_t i = 0; i < num_full_pages; i++)
+    {
+        if (pager.pages[i] == nullptr)
         {
-            free(pages[i]);
+            continue;
+        }
+        pager.pager_flush(i, PAGE_SIZE);
+        free(pager.pages[i]);
+        pager.pages[i] = nullptr;
+    }
+
+    // There may be a partial page to write to the end of the file
+    // This should not be needed after we switch to a B-tree
+    uint32_t num_additional_rows = num_rows % ROWS_PER_PAGE;
+    if (num_additional_rows > 0)
+    {
+        uint32_t page_num = num_full_pages;
+        if (pager.pages[page_num] != nullptr)
+        {
+            pager.pager_flush(page_num, num_additional_rows * ROW_SIZE);
+            free(pager.pages[page_num]);
+            pager.pages[page_num] = nullptr;
         }
     }
-};
+
+    int result = close(pager.file_descriptor);
+    if (result == -1)
+    {
+        std::cout << "Error closing db file." << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++)
+    {
+        void *page = pager.pages[i];
+        if (page)
+        {
+            free(page);
+            pager.pages[i] = nullptr;
+        }
+    }
+}
+
 
 /**
  * @fn
  * slot=Pageにおける行番号
  * slot=0ならば、そのPageの最初の行番号に一致する
 */
-void *row_slot(Table &table, uint32_t row_num)
+void *Table::row_slot(uint32_t row_num)
 {
     uint32_t page_num = row_num / ROWS_PER_PAGE;
-    void *page = table.pages[page_num];
-    if (page == NULL)
-    {
-        // Pageにアクセスする時だけ、メモリを割り当てる
-        page = table.pages[page_num] = malloc(PAGE_SIZE);
-    }
+    void* page = pager.get_page(page_num);
     uint32_t row_offset = row_num % ROWS_PER_PAGE;
     uint32_t byte_offset = row_offset * ROW_SIZE;
     return (char *)page + byte_offset;
@@ -178,19 +327,32 @@ public:
 /** DB Class */
 class DB
 {
+private:
+    Table *table;
 public:
+    DB(const char *filename)
+    {
+        table = new Table(filename);
+    }
     void start();
     void print_prompt();
 
     bool parse_meta_command(string &command);
     MetaCommandResult do_meta_command(string &command);
 
+    PrepareResult prepare_insert(std::string &input_line, Statement &statement);
     PrepareResult prepare_statement(string &input_line, Statement &statement);
     bool parse_statement(string &input_line, Statement &statement);
-    void execute_statement(Statement &statement, Table &table);
-    ExecuteResult execute_insert(Statement &statement, Table &table);
-    ExecuteResult execute_select(Statement &statement, Table &table);
+    void execute_statement(Statement &statement);
+    ExecuteResult execute_insert(Statement &statement);
+    ExecuteResult execute_select(Statement &statement);
+
+    ~DB()
+    {
+        delete table;
+    }
 };
+
 
 /**
  * @fn
@@ -225,6 +387,7 @@ MetaCommandResult DB::do_meta_command(string &command)
 {
     if (command == ".exit")
     {
+        delete (table);
         cout << "Thanks for using simple database. Bye!" << endl;
         exit(EXIT_SUCCESS);
     }
@@ -233,7 +396,9 @@ MetaCommandResult DB::do_meta_command(string &command)
         return META_COMMAND_UNRECOGNIZED_COMMAND;
     }
 }
-PrepareResult prepare_insert (string &input_line, Statement &statement) {
+
+
+PrepareResult DB::prepare_insert(string &input_line, Statement &statement) {
     statement.type = STATEMENT_INSERT;
 
     char *insert_line = (char *)input_line.c_str();
@@ -311,18 +476,18 @@ bool DB::parse_statement(string &input_line, Statement &statement)
 /**
  * @fn
  * Insert文実行
-*/
-ExecuteResult DB::execute_insert(Statement &statement, Table &table)
+ */
+ExecuteResult DB::execute_insert(Statement &statement)
 {
-    if (table.num_rows >= TABLE_MAX_ROWS)
+    if (table->num_rows >= TABLE_MAX_ROWS)
     {
         cout << "Error: Table is full." << endl;
         return EXECUTE_TABLE_FULL;
     }
 
-    void *page = row_slot(table, table.num_rows);
+    void *page = table->row_slot(table->num_rows);
     serialize_row(statement.row_to_insert, page);
-    table.num_rows++;
+    table->num_rows++;
 
     return EXECUTE_SUCCESS;
 }
@@ -331,28 +496,28 @@ ExecuteResult DB::execute_insert(Statement &statement, Table &table)
  * @fn
  * Select文実行
 */
-ExecuteResult DB::execute_select(Statement &statement, Table &table)
+ExecuteResult DB::execute_select(Statement &statement)
 {
-    for (uint32_t i = 0; i < table.num_rows; i++)
+    for (uint32_t i = 0; i < table->num_rows; i++)
     {
         Row row;
-        void *page = row_slot(table, i);
+        void *page = table->row_slot(i);
         deserialize_row(page, row);
         cout << "(" << row.id << ", " << row.username << ", " << row.email << ")" << endl;
     }
 
     return EXECUTE_SUCCESS;
 }
-void DB::execute_statement(Statement &statement, Table &table)
+void DB::execute_statement(Statement &statement)
 {
     ExecuteResult result;
     switch (statement.type)
     {
     case STATEMENT_INSERT:
-        result = execute_insert(statement, table);
+        result = execute_insert(statement);
         break;
     case STATEMENT_SELECT:
-        result = execute_select(statement, table);
+        result = execute_select(statement);
         break;
     }
 
@@ -374,15 +539,13 @@ void DB::execute_statement(Statement &statement, Table &table)
 */
 void DB::start()
 {
-    Table table;
-
     while (true)
     {
         print_prompt();
 
         string input_line;
         /**
-         * std::getline
+         * getline
          * @fn
          * 改行文字が現れるまでの文字を入力する
         */
@@ -400,13 +563,18 @@ void DB::start()
             continue;
         }
 
-        execute_statement(statement, table);
+        execute_statement(statement);
     }
 }
 
 int main(int argc, char const *argv[])
 {
-    DB db;
+    if (argc < 2)
+    {
+        cout << "Must supply a database filename." << endl;
+        exit(EXIT_FAILURE);
+    }
+    DB db(argv[1]);
     db.start();
     return 0;
 }

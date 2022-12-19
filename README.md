@@ -37,7 +37,7 @@ RSpec 3.12
 | 02 | World’s Simplest SQL Compiler and Virtual Machine |SQLコンパイラの実装<br>SQLコンパイラは文字列をパースする<br>ByteCode(中間Cd)に変換し仮想マシンへ返す|
 | 03 | An In-Memory, Append-Only, Single-Table Database | メモリ上の表を作成する<br>Insert/Selectを実装する<br>Pageを作成する |
 | 04 | Our First Tests (and Bugs) |rspecの導入<br>`sscanf`->`strtok()`に変更<br>TestCase3つ追加|
-| 05 | Persistence to Disk ||
+| 05 | Persistence to Disk | Diskにデータ(File)ストアする<br>Pagerの追加 |
 | 06 | The Cursor Abstraction ||
 | 07 | Introduction to the B-Tree ||
 | 08 | B-Tree Leaf Node Format ||
